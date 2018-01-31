@@ -1,0 +1,137 @@
+---
+title: "Lecture1Exercise"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+##Exercise 1 - Babynames
+
+First import the necessary libraries for the exercise
+```{r}
+library(babynames)
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+```
+
+A look at the data
+```{r}
+str(babynames)
+```
+
+From the top
+```{r}
+head(babynames)
+```
+
+To the bottom
+```{r}
+tail(babynames)
+```
+
+The number of names are:
+```{r}
+length(unique(babynames$name))
+```
+
+How many kids are there total?
+```{r}
+sum(babynames$n)
+```
+
+Plot a single name over time
+```{r}
+ggplot(babynames, aes(year,n)) + geom_line(data=filter(babynames, name == 'Emma'))
+```
+
+The above graph is inaccurate. This is shown in the bottom table because the data is for males and females.
+```{r}
+head(filter(babynames, name == 'Emma'))
+```
+
+A graph of the data sorted by sex.
+```{r}
+ggplot(babynames, aes(year,n)) + geom_line(data=filter(babynames, name == 'Emma'), aes(color = sex))
+```
+
+Top 10 Names over time
+```{r}
+top_ten <- babynames %>%
+  group_by(sex, name) %>%
+  summarize(total = sum(n)) %>%
+  arrange(desc(total)) %>%
+  group_by(sex) %>%
+  mutate(rank=row_number()) %>%
+  filter(rank <= 10) %>%
+  arrange(sex, rank)
+
+top10_f <- top_ten %>% filter(sex=='F')
+top10_m <- top_ten %>% filter(sex == 'M')
+```
+
+Girls
+```{r}
+top10_f
+```
+
+Boys
+```{r}
+top10_m
+```
+
+Plot of Top 10 most common names
+```{r}
+babynames %>%
+  filter(sex=='F')%>%
+  filter(name %in% top10_f$name) %>%
+  ggplot(., aes(year, n)) + geom_line(aes(color=name, group=name))
+```
+
+```{r}
+babynames %>%
+  filter(sex=='M')%>%
+  filter(name%in% top10_m$name) %>%
+  ggplot(., aes(year, n)) + geom_line(aes(color=name, group=name))
+```
+
+Top 10 Names of 2013
+```{r}
+top_10_2013 <- babynames %>%
+  filter(year == 2013) %>%
+  group_by(sex, name, year) %>%
+  summarize(total_2013 = sum(n)) %>%
+  arrange(desc(total_2013)) %>%
+  group_by(sex) %>%
+  mutate(rank=row_number()) %>%
+  filter(rank <= 10) %>%
+  arrange(sex, rank, year)
+
+top_10_2013_f <- top_10_2013 %>% filter(sex == 'F')
+top_10_2013_m <- top_10_2013 %>% filter(sex == 'M')
+```
+
+Plot of top 10 Names of 2013
+```{r}
+babynames %>% 
+  filter(sex == 'F') %>%
+  filter(name %in% top_10_2013_f$name) %>%
+  ggplot(., aes(year, n)) + geom_line(aes(color=name, group=name))
+```
+
+```{r}
+babynames %>%
+  filter(sex == 'M') %>%
+  filter(name %in% top_10_2013_m$name) %>%
+  ggplot(., aes(year, n)) + geom_line(aes(color=name, group=name))
+```
+
+Unisex Names
+```{r}
+
+```
+
+
+
